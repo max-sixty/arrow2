@@ -14,7 +14,7 @@ use super::{
     RowGroupMetaData,
 };
 
-type GroupFilter = Arc<dyn Fn(usize, &RowGroupMetaData) -> bool>;
+type GroupFilter = Arc<dyn Fn(usize, &RowGroupMetaData) -> bool + Send + Sync>;
 
 /// Single threaded iterator of [`RecordBatch`] from a parquet file.
 pub struct RecordReader<R: Read + Seek> {
