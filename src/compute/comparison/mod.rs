@@ -240,6 +240,17 @@ macro_rules! compare_scalar {
                 let rhs = rhs.as_any().downcast_ref::<BinaryScalar<i64>>().unwrap();
                 binary::$op::<i64>(lhs, rhs.value().unwrap())
             }
+            Dictionary(key_type) => {
+                match_integer_type!(key_type, |$T| {
+                    let lhs = lhs.as_any().downcast_ref::<DictionaryArray<$T>>().unwrap();
+                    let values = cmp_scalar(lhs.values(), rhs);
+
+                    Box::new(DictionaryArray::<K>::from_data(
+                        lhs.keys().clone(),
+                        values.into(),
+                    ))
+                })
+            }
             _ => todo!("Comparisons of {:?} are not yet supported", lhs.data_type()),
         }
     }};
@@ -337,6 +348,10 @@ pub fn can_gt_eq(data_type: &DataType) -> bool {
 
 // The list of operations currently supported.
 fn can_compare(data_type: &DataType) -> bool {
+    if let DataType::Dictionary(_, values) = data_type.to_logical_type() {
+        return can_compare(values.as_ref());
+    }
+
     matches!(
         data_type,
         DataType::Boolean

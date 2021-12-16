@@ -37,6 +37,7 @@ fn consistency() {
         Duration(TimeUnit::Millisecond),
         Duration(TimeUnit::Microsecond),
         Duration(TimeUnit::Nanosecond),
+        Dictionary(IntegerType::Int32, Box::new(LargeBinary)),
     ];
 
     // array <> array
